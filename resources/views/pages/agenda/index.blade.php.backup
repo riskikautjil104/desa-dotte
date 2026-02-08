@@ -1,0 +1,236 @@
+@extends('layouts.main')
+
+@section('body')
+@section('outmain')
+@include('layouts.header')
+@include('layouts.page-hero', [
+    'title' => 'Agenda Desa',
+    'subtitle' => 'Temukan agenda terbaru tentang Desa Kotalo',
+    'breadcrumb' => 'Agenda',
+    'showBreadcrumb' => true
+])
+{{-- @include('layouts.hero') --}}
+@endsection
+
+<!-- ======= Agenda Section ======= -->
+<section id="agenda" class="blog">
+    <div class="container" data-aos="fade-up">
+        <div class="section-title mb-5">
+            <h2 class="fw-bold">Agenda Desa</h2>
+            <p class="text-muted">Jadwal kegiatan dan evento desa</p>
+        </div>
+
+        <!-- Filter -->
+        <div class="row mb-4">
+            <div class="col-lg-8">
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ route('frontend.agenda') }}"
+                        class="btn {{ !request('status') ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">
+                        Semua Agenda
+                    </a>
+                    <a href="{{ route('frontend.agenda') }}?status=akan_datang"
+                        class="btn {{ request('status') == 'akan_datang' ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">
+                        <i class="bi bi-calendar-event me-1"></i>Akan Datang
+                    </a>
+                    <a href="{{ route('frontend.agenda') }}?status=sedang_berlangsung"
+                        class="btn {{ request('status') == 'sedang_berlangsung' ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">
+                        <i class="bi bi-play-circle me-1"></i>Sedang Berlangsung
+                    </a>
+                    <a href="{{ route('frontend.agenda') }}?status=selesai"
+                        class="btn {{ request('status') == 'selesai' ? 'btn-primary' : 'btn-outline-primary' }} btn-sm">
+                        <i class="bi bi-check-circle me-1"></i>Selesai
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            {{-- Main Content --}}
+            <div class="col-lg-8 order-2 order-lg-1">
+                @if ($agenda->count())
+                <div class="row g-4">
+                    @foreach ($agenda as $item)
+                    <div class="col-lg-6 col-md-6 col-sm-12">
+                        <article class="entry modern-card h-100" data-aos="fade-up" data-aos-delay="100">
+                            <div class="position-relative overflow-hidden rounded-3 mb-3">
+                                @if ($item->gambar)
+                                <img src="{{ asset('storage/agenda/' . $item->gambar) }}" alt="{{ $item->judul }}"
+                                    class="img-fluid w-100 modern-card-img" style="height: 220px; object-fit: cover;">
+                                @else
+                                <div class="bg-light d-flex align-items-center justify-content-center"
+                                    style="height: 220px;">
+                                    <i class="bi bi-calendar-event text-muted" style="font-size: 4rem;"></i>
+                                </div>
+                                @endif
+
+                                <div class="card-overlay">
+                                    @php
+                                    $badgeClass = match($item->status) {
+                                    'akan_datang' => 'bg-info',
+                                    'sedang_berlangsung' => 'bg-success',
+                                    'selesai' => 'bg-secondary',
+                                    default => 'bg-primary'
+                                    };
+                                    @endphp
+                                    <span class="badge {{ $badgeClass }}">{{ ucfirst(str_replace('_', ' ',
+                                        $item->status)) }}</span>
+                                </div>
+                            </div>
+
+                            <div class="entry-content p-4">
+                                <h2 class="entry-title mb-3">
+                                    <a href="{{ route('frontend.agenda.detail', $item->id) }}"
+                                        class="text-decoration-none text-dark fw-bold">
+                                        {{ $item->judul }}
+                                    </a>
+                                </h2>
+
+                                <div class="entry-meta mb-3">
+                                    <ul class="list-unstyled d-flex flex-wrap gap-3 mb-0">
+                                        <li class="d-flex align-items-center text-muted">
+                                            <i class="bi bi-calendar3 me-1"></i>
+                                            <span>{{ $item->tanggal_mulai->format('d M Y') }}</span>
+                                        </li>
+                                        @if ($item->jam_mulai)
+                                        <li class="d-flex align-items-center text-muted">
+                                            <i class="bi bi-clock me-1"></i>
+                                            <span>{{ $item->jam_mulai->format('H:i') }}</span>
+                                        </li>
+                                        @endif
+                                        @if ($item->lokasi)
+                                        <li class="d-flex align-items-center text-muted">
+                                            <i class="bi bi-geo-alt me-1"></i>
+                                            <span>{{ Str::limit($item->lokasi, 20) }}</span>
+                                        </li>
+                                        @endif
+                                    </ul>
+                                </div>
+
+                                @if ($item->deskripsi)
+                                <p class="text-muted mb-3">
+                                    {!! Str::limit(strip_tags($item->deskripsi), 120) !!}
+                                </p>
+                                @endif
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="read-more">
+                                        <a href="{{ route('frontend.agenda.detail', $item->id) }}"
+                                            class="btn btn-outline-primary btn-sm rounded-pill">
+                                            Selengkapnya <i class="bi bi-arrow-right ms-1"></i>
+                                        </a>
+                                    </div>
+
+                                    <div class="text-muted small">
+                                        <i class="bi bi-eye me-1"></i>{{ $item->views }}
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                    @endforeach
+                </div>
+
+                <!-- Pagination -->
+                <div class="d-flex justify-content-center mt-5">
+                    {{ $agenda->links() }}
+                </div>
+                @else
+                <div class="text-center py-5">
+                    <i class="bi bi-calendar-x text-muted" style="font-size: 4rem;"></i>
+                    <h5 class="text-muted mb-3 mt-3">Belum Ada Agenda</h5>
+                    <p class="text-muted">Silakan kunjungi kembali dalam waktu dekat</p>
+                    <a class="btn btn-primary rounded-pill px-4" href="/">
+                        <i class="bi bi-arrow-return-left me-2"></i> Kembali
+                    </a>
+                </div>
+                @endif
+            </div>
+
+            {{-- Sidebar --}}
+            <div class="col-lg-4 order-1 order-lg-2">
+                <div class="sidebar-modern sticky-top" style="top: 100px;">
+
+                    {{-- Kategori Agenda --}}
+                    <div class="sidebar-widget mb-4" data-aos="fade-left">
+                        <div class="card border-0 shadow-sm rounded-3">
+                            <div class="card-header bg-primary text-white border-0 py-3">
+                                <h5 class="mb-0 fw-bold">
+                                    <i class="bi bi-tags me-2"></i>Kategori
+                                </h5>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span class="badge bg-light text-dark">{{ $agenda->total() }} Total</span>
+                                    <span class="badge bg-info text-white">Umum</span>
+                                    <span class="badge bg-success text-white">Rapat</span>
+                                    <span class="badge bg-warning text-white">Seleksi</span>
+                                    <span class="badge bg-danger text-white">Budaya</span>
+                                    <span class="badge bg-purple text-white">Seminar</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Quick Actions --}}
+                    <div class="sidebar-widget" data-aos="fade-left" data-aos-delay="100">
+                        <div class="card border-0 shadow-sm rounded-3">
+                            <div class="card-header bg-white border-0 py-3">
+                                <h5 class="mb-0 fw-bold">
+                                    <i class="bi bi-lightning me-2 text-warning"></i>Aksi Cepat
+                                </h5>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="d-grid gap-2">
+                                    <a href="{{ route('pengaduan') }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-chat-dots me-2"></i>Pengaduan
+                                    </a>
+                                    <a href="https://wa.me/6281234567890?text=Halo%20Admin%20Desa%20Kotalo"
+                                        class="btn btn-success btn-sm" target="_blank">
+                                        <i class="bi bi-whatsapp me-2"></i>WhatsApp Admin
+                                    </a>
+                                    <a href="{{ route('pelayanan') }}" class="btn btn-info btn-sm">
+                                        <i class="bi bi-file-earmark-text me-2"></i>Layanan Surat
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+<style>
+    /* Agenda Specific Styles */
+    .modern-card .badge {
+        padding: 8px 16px;
+        font-weight: 500;
+        backdrop-filter: blur(10px);
+    }
+
+    .bg-purple {
+        background-color: #6f42c1 !important;
+    }
+
+    .entry-meta ul {
+        gap: 1rem !important;
+    }
+
+    .entry-meta li {
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+        .entry-meta ul {
+            flex-direction: column !important;
+            gap: 0.5rem !important;
+        }
+    }
+</style>
+
+@include('layouts.footer')
+@endsection

@@ -1,0 +1,285 @@
+@extends('layouts.main')
+
+@section('body')
+@section('outmain')
+@include('layouts.header')
+@endsection
+
+<!-- ======= Breadcrumbs ======= -->
+<div class="breadcrumbs" data-aos="fade-in">
+   <div class="container">
+      <ol class="breadcrumb">
+         <li class="breadcrumb-item"><a href="/">Beranda</a></li>
+         <li class="breadcrumb-item"><a href="{{ route('frontend.agenda') }}">Agenda</a></li>
+         <li class="breadcrumb-item active">{{ $agenda->judul }}</li>
+      </ol>
+   </div>
+</div>
+
+<!-- ======= Agenda Detail Section ======= -->
+<section id="agenda-detail" class="blog">
+   <div class="container" data-aos="fade-up">
+      <div class="row g-5">
+         {{-- Main Content --}}
+         <div class="col-lg-8">
+            <article class="entry entry-single">
+
+               {{-- Header dengan Status Badge --}}
+               <div class="entry-header mb-4">
+                  <div class="d-flex align-items-center justify-content-between mb-3">
+                     @php
+                     $badgeClass = match($agenda->status) {
+                     'akan_datang' => 'bg-info',
+                     'sedang_berlangsung' => 'bg-success',
+                     'selesai' => 'bg-secondary',
+                     default => 'bg-primary'
+                     };
+                     @endphp
+                     <span class="badge {{ $badgeClass }} fs-6">{{ ucfirst(str_replace('_', ' ', $agenda->status))
+                        }}</span>
+                     <div class="text-muted small">
+                        <i class="bi bi-eye me-1"></i>{{ $agenda->views }} views
+                     </div>
+                  </div>
+
+                  <h1 class="entry-title">{{ $agenda->judul }}</h1>
+
+                  {{-- Meta Information --}}
+                  <div class="entry-meta">
+                     <ul class="list-unstyled d-flex flex-wrap gap-4 mb-0">
+                        @if ($agenda->tanggal_mulai)
+                        <li class="d-flex align-items-center">
+                           <i class="bi bi-calendar3 me-2 text-primary"></i>
+                           <span>{{ $agenda->tanggal_mulai->format('d F Y') }}</span>
+                           @if ($agenda->tanggal_selesai && $agenda->tanggal_mulai != $agenda->tanggal_selesai)
+                           <span> - {{ $agenda->tanggal_selesai->format('d F Y') }}</span>
+                           @endif
+                        </li>
+                        @endif
+
+                        @if ($agenda->jam_mulai)
+                        <li class="d-flex align-items-center">
+                           <i class="bi bi-clock me-2 text-primary"></i>
+                           <span>{{ $agenda->jam_mulai->format('H:i') }}</span>
+                           @if ($agenda->jam_selesai)
+                           <span> - {{ $agenda->jam_selesai->format('H:i') }} WIB</span>
+                           @endif
+                        </li>
+                        @endif
+
+                        @if ($agenda->lokasi)
+                        <li class="d-flex align-items-center">
+                           <i class="bi bi-geo-alt me-2 text-primary"></i>
+                           <span>{{ $agenda->lokasi }}</span>
+                        </li>
+                        @endif
+
+                        @if ($agenda->pembicara)
+                        <li class="d-flex align-items-center">
+                           <i class="bi bi-person me-2 text-primary"></i>
+                           <span>{{ $agenda->pembicara }}</span>
+                        </li>
+                        @endif
+                     </ul>
+                  </div>
+               </div>
+
+               {{-- Gambar --}}
+               @if ($agenda->gambar)
+               <div class="entry-img mb-4">
+                  <img src="{{ asset('storage/agenda/' . $agenda->gambar) }}" alt="{{ $agenda->judul }}"
+                     class="img-fluid rounded" style="width: 100%; max-height: 400px; object-fit: cover;">
+               </div>
+               @endif
+
+               {{-- Konten --}}
+               <div class="entry-content">
+                  @if ($agenda->deskripsi)
+                  <div class="content-text">
+                     {!! nl2br(e($agenda->deskripsi)) !!}
+                  </div>
+                  @else
+                  <div class="alert alert-info">
+                     <i class="bi bi-info-circle me-2"></i>
+                     Deskripsi untuk agenda ini belum tersedia.
+                  </div>
+                  @endif
+
+                  {{-- Informasi Tambahan --}}
+                  <div class="row mt-4">
+                     <div class="col-md-6">
+                        <div class="card border-0 bg-light">
+                           <div class="card-body">
+                              <h6 class="card-title text-primary">
+                                 <i class="bi bi-tag me-2"></i>Kategori
+                              </h6>
+                              <p class="card-text mb-0">
+                                 <span class="badge bg-primary">{{ ucfirst($agenda->kategori) }}</span>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="col-md-6">
+                        <div class="card border-0 bg-light">
+                           <div class="card-body">
+                              <h6 class="card-title text-success">
+                                 <i class="bi bi-calendar-check me-2"></i>Status
+                              </h6>
+                              <p class="card-text mb-0">
+                                 @php
+                                 $statusText = match($agenda->status) {
+                                 'akan_datang' => 'Akan Datang',
+                                 'sedang_berlangsung' => 'Sedang Berlangsung',
+                                 'selesai' => 'Selesai',
+                                 default => 'Unknown'
+                                 };
+                                 @endphp
+                                 <span class="badge {{ $badgeClass }}">{{ $statusText }}</span>
+                              </p>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+
+                  {{-- Call to Action --}}
+                  <div class="mt-4 p-4 bg-primary text-white rounded">
+                     <div class="row align-items-center">
+                        <div class="col-md-8">
+                           <h5 class="mb-2">Tertarik dengan agenda ini?</h5>
+                           <p class="mb-0">Hubungi kami untuk informasi lebih lanjut atau untuk pendaftaran.</p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                           <a href="https://wa.me/6281234567890?text=Halo%20Admin%20Desa%20Kotalo%2C%20saya%20ingin%20menanyakan%20tentang%20agenda%20{{ urlencode($agenda->judul) }}"
+                              class="btn btn-light" target="_blank">
+                              <i class="bi bi-whatsapp me-2"></i>WhatsApp
+                           </a>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+            </article>
+         </div>
+
+         {{-- Sidebar --}}
+         <div class="col-lg-4">
+            <div class="sidebar-modern sticky-top" style="top: 100px;">
+
+               {{-- Agenda Terbaru --}}
+               <div class="sidebar-widget mb-4" data-aos="fade-left">
+                  <div class="card border-0 shadow-sm rounded-3">
+                     <div class="card-header bg-white border-0 py-3">
+                        <h5 class="mb-0 fw-bold">
+                           <i class="bi bi-calendar-event me-2 text-primary"></i>Agenda Terbaru
+                        </h5>
+                     </div>
+                     <div class="card-body p-4">
+                        @foreach ($recentAgenda as $recent)
+                        <div class="d-flex mb-3 pb-3 {{ $loop->last ? '' : 'border-bottom' }}">
+                           <div class="flex-shrink-0">
+                              @if ($recent->gambar)
+                              <img src="{{ asset('storage/agenda/' . $recent->gambar) }}" alt="{{ $recent->judul }}"
+                                 class="rounded" style="width: 60px; height: 60px; object-fit: cover;">
+                              @else
+                              <div class="bg-light rounded d-flex align-items-center justify-content-center"
+                                 style="width: 60px; height: 60px;">
+                                 <i class="bi bi-calendar-event text-muted"></i>
+                              </div>
+                              @endif
+                           </div>
+                           <div class="flex-grow-1 ms-3">
+                              <h6 class="mb-2">
+                                 <a href="{{ route('agenda.detail', $recent->id) }}"
+                                    class="text-decoration-none text-dark">
+                                    {{ Str::limit($recent->judul, 40) }}
+                                 </a>
+                              </h6>
+                              <small class="text-muted d-flex align-items-center">
+                                 <i class="bi bi-calendar3 me-1"></i>
+                                 {{ $recent->tanggal_mulai->format('d M Y') }}
+                              </small>
+                           </div>
+                        </div>
+                        @endforeach
+
+                        <div class="text-center mt-3">
+                           <a href="{{ route('frontend.agenda') }}" class="btn btn-outline-primary btn-sm">
+                              Lihat Semua Agenda
+                           </a>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+               {{-- Aksi Cepat --}}
+               <div class="sidebar-widget" data-aos="fade-left" data-aos-delay="100">
+                  <div class="card border-0 shadow-sm rounded-3">
+                     <div class="card-header bg-white border-0 py-3">
+                        <h5 class="mb-0 fw-bold">
+                           <i class="bi bi-lightning me-2 text-warning"></i>Aksi Cepat
+                        </h5>
+                     </div>
+                     <div class="card-body p-4">
+                        <div class="d-grid gap-2">
+                           <a href="{{ route('pengaduan') }}" class="btn btn-outline-primary btn-sm">
+                              <i class="bi bi-chat-dots me-2"></i>Pengaduan Online
+                           </a>
+                           <a href="{{ route('pelayanan') }}" class="btn btn-outline-info btn-sm">
+                              <i class="bi bi-file-earmark-text me-2"></i>Layanan Surat
+                           </a>
+                           <a href="{{ route('galeri') }}" class="btn btn-outline-success btn-sm">
+                              <i class="bi bi-images me-2"></i>Galeri Desa
+                           </a>
+                           <a href="{{ route('apbdes') }}" class="btn btn-outline-warning btn-sm">
+                              <i class="bi bi-graph-up me-2"></i>APBDes
+                           </a>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+            </div>
+         </div>
+
+      </div>
+   </div>
+</section>
+
+<style>
+   /* Detail Agenda Styles */
+   .entry-header h1 {
+      font-size: 2rem;
+      line-height: 1.3;
+      margin-bottom: 1rem;
+   }
+
+   .entry-meta ul {
+      gap: 2rem !important;
+   }
+
+   .content-text {
+      font-size: 1.1rem;
+      line-height: 1.7;
+      color: #444;
+   }
+
+   @media (max-width: 768px) {
+      .entry-meta ul {
+         flex-direction: column !important;
+         gap: 0.75rem !important;
+      }
+
+      .entry-header h1 {
+         font-size: 1.5rem;
+      }
+
+      .entry-header .d-flex {
+         flex-direction: column;
+         align-items: flex-start !important;
+         gap: 1rem;
+      }
+   }
+</style>
+
+@include('layouts.footer')
+@endsection
