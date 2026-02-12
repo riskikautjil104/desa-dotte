@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             // AdminSeeder::class,
             BansosSeeder::class, 
             BeritaSeeder::class, 
+            SambutanLurahSeeder::class,
             // DatapendudukSeeder::class,
         ]);
 
