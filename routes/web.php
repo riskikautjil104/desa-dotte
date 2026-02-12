@@ -496,3 +496,4 @@ Route::prefix('dokumen')->group(function () {
     Route::get('/{dokumen}', [DokumenController::class, 'frontendShow'])->name('frontend.dokumen.show');
     Route::get('/{dokumen}/download', [DokumenController::class, 'download'])->name('frontend.dokumen.download');
 });
+// Test final
